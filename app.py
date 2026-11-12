@@ -43,18 +43,77 @@ BIENVENUE = {
    "ln": "Monoko : Lingala \nBoyei malamu na KAZI Connect 👷",
 }
 
-def repondre (numero, texte):
+TEXTES = {
+   "fr": {
+      "menu": "Que veux-tu faire ?\n1 Je cherche du travail\n2 Je cherche un travailleur",
+      "nom": "Quel est ton nom complet ?",
+      "metier": "Quel est ton métier ? (ex : maçon, électricien)",
+      "ville": "Dans quelle ville travailles-tu ? (ex : Lubumbashi, Kinshasa)",
+      "merci": "✅ Merci {nom} ! Tu es inscrit comme {metier} à {ville}.\nTape menu pour revenir.",
+   },
+   "sw": {
+      "menu": "Unataka kufanya nini?\n1 Natafuta kazi\n2 Natafuta mfanyakazi",
+      "nom": "Jina lako kamili ni nani?",
+      "metier": "Kazi yako ni ipi? (mf : mjenzi, fundi umeme)",
+      "ville": "Unafanya kazi mji gani? (mf : Lubumbashi, Kinshasa)",
+      "merci": "✅ Asante {nom}! Umesajiliwa kama {metier} hapa {ville}.\nAndika menu kurudi.",
+   },
+   "ln": {
+      "menu": "Olingi kosala nini?\n1 Nazali koluka mosala\n2 Nazali koluka mosali",
+      "nom": "Nkombo na yo ya mobimba nini?",
+      "metier": "Mosala na yo nini? (ndakisa : maçon, électricien)",
+      "ville": "Ozali kosala na engumba nini? (ex : Lubumbashi, Kinshasa)",
+      "merci": "✅ Matondi {nom}! Okomisami lokola {metier} na {ville}.\nKoma menu mpo na kozonga.",
+   },
+}
+
+
+def repondre(numero, texte):
    t = texte.strip().lower()
+
    if numero not in sessions or t == "menu":
-      sessions[numero] = {}
+      if numero in sessions and "langue" in sessions[numero] and t == "menu":
+         sessions[numero]["etape"] = "menu"
+         return TEXTES[sessions[numero]["langue"]]["menu"]
+      sessions[numero] = {"etape": "langue"}
       return CHOIX_LANGUE
-   langues = {"1" : "fr", "2" : "sw", "3": "ln"}
-   if "langues" not in sessions[numero]:
+
+   session = sessions[numero]
+   etape = session["etape"]
+
+   if etape == "langue":
+      langues = {"1": "fr", "2": "sw", "3": "ln"}
       if t in langues:
-         sessions[numero]["langues"] = langues[t]
-         return BIENVENUE[langues[t]]
+         session["langue"] = langues[t]
+         session["etape"] = "menu"
+         return TEXTES[session["langue"]]["menu"]
       return CHOIX_LANGUE
-   return BIENVENUE[sessions[numero]["langues"]]
+
+   langue = session["langue"]
+
+   if etape == "menu":
+      if t == "1":
+         session["etape"] = "nom"
+         return TEXTES[langue]["nom"]
+      return TEXTES[langue]["menu"]
+
+   if etape == "nom":
+      session["nom"] = texte.strip()
+      session["etape"] = "metier"
+      return TEXTES[langue]["metier"]
+
+   if etape == "metier":
+      session["metier"] = texte.strip()
+      session["etape"] = "ville"
+      return TEXTES[langue]["ville"]
+
+   if etape == "ville":
+      session["ville"] = texte.strip()
+      session["etape"] = "menu"
+      return TEXTES[langue]["merci"].format(
+         nom=session["nom"], metier=session["metier"], ville=session["ville"])
+
+   return TEXTES[langue]["menu"]
       
 @app.route("/webhook", methods=["POST"])
 def receive():
