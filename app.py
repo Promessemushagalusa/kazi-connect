@@ -1,5 +1,6 @@
 import os
 import requests
+import sqlite3
 from dotenv import load_dotenv
 from flask import Flask, request
 
@@ -71,6 +72,30 @@ TEXTES = {
 }
 
 
+BASE = "kazi.db"
+
+def creer_base():
+   with sqlite3.connect(BASE) as connexion:
+      connexion.execute(
+         "CREATE TABLE IF NOT EXISTS travailleurs ("
+         "numero TEXT PRIMARY KEY, "
+         "nom TEXT, "
+         "metier TEXT, "
+         "ville TEXT, "
+         "langue TEXT)"
+      )
+
+creer_base()
+
+def enregistrer(numero, nom, metier, ville, langue):
+   with sqlite3.connect(BASE) as connexion:
+      connexion.execute(
+         "INSERT OR REPLACE INTO travailleurs VALUES (?, ?, ?, ?, ?)",
+         (numero, nom, metier, ville, langue)
+      )
+
+
+
 def repondre(numero, texte):
    t = texte.strip().lower()
 
@@ -116,9 +141,11 @@ def repondre(numero, texte):
 
    if etape == "ville":
       session["ville"] = texte.strip()
+      enregistrer(numero, session["nom"], session["metier"], session["ville"], langue)
       session["etape"] = "menu"
       return TEXTES[langue]["merci"].format(
          nom=session["nom"], metier=session["metier"], ville=session["ville"])
+
 
    return TEXTES[langue]["menu"]
       
