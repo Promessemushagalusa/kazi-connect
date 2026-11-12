@@ -50,6 +50,7 @@ TEXTES = {
       "metier": "Quel est ton métier ? (ex : maçon, électricien)",
       "ville": "Dans quelle ville travailles-tu ? (ex : Lubumbashi, Kinshasa)",
       "merci": "✅ Merci {nom} ! Tu es inscrit comme {metier} à {ville}.\nTape menu pour revenir.",
+      "menu": "Que veux-tu faire ?\n1 Je cherche du travail\n2 Je cherche un travailleur\n\nTape langue pour changer de langue",
    },
    "sw": {
       "menu": "Unataka kufanya nini?\n1 Natafuta kazi\n2 Natafuta mfanyakazi",
@@ -57,6 +58,7 @@ TEXTES = {
       "metier": "Kazi yako ni ipi? (mf : mjenzi, fundi umeme)",
       "ville": "Unafanya kazi mji gani? (mf : Lubumbashi, Kinshasa)",
       "merci": "✅ Asante {nom}! Umesajiliwa kama {metier} hapa {ville}.\nAndika menu kurudi.",
+      "menu": "Unataka kufanya nini?\n1 Natafuta kazi\n2 Natafuta mfanyakazi\n\nAndika lugha kubadilisha lugha",
    },
    "ln": {
       "menu": "Olingi kosala nini?\n1 Nazali koluka mosala\n2 Nazali koluka mosali",
@@ -64,6 +66,7 @@ TEXTES = {
       "metier": "Mosala na yo nini? (ndakisa : maçon, électricien)",
       "ville": "Ozali kosala na engumba nini? (ex : Lubumbashi, Kinshasa)",
       "merci": "✅ Matondi {nom}! Okomisami lokola {metier} na {ville}.\nKoma menu mpo na kozonga.",
+      "menu": "Olingi kosala nini?\n1 Nazali koluka mosala\n2 Nazali koluka mosali\n\nKoma monoko mpo na kobongola monoko",
    },
 }
 
@@ -76,6 +79,10 @@ def repondre(numero, texte):
          sessions[numero]["etape"] = "menu"
          return TEXTES[sessions[numero]["langue"]]["menu"]
       sessions[numero] = {"etape": "langue"}
+      return CHOIX_LANGUE
+
+   if t in ("langue", "lugha", "monoko"):
+      sessions[numero]["etape"] = "langue"
       return CHOIX_LANGUE
 
    session = sessions[numero]
